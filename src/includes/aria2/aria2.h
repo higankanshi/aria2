@@ -71,7 +71,7 @@ struct Session;
  * Call this function only once before calling any other API
  * functions.
  */
-int libraryInit();
+extern "C" int libraryInit();
 
 /**
  * @function
@@ -81,7 +81,7 @@ int libraryInit();
  *
  * Call this function only once at the end of the application.
  */
-int libraryDeinit();
+extern "C" int libraryDeinit();
 
 /**
  * @typedef
@@ -206,6 +206,7 @@ struct SessionConfig {
  * process.
  */
 Session* sessionNew(const KeyVals& options, const SessionConfig& config);
+extern "C" Session* sessionNewEx(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData);
 
 /**
  * @function
@@ -215,7 +216,7 @@ Session* sessionNew(const KeyVals& options, const SessionConfig& config);
  * for it. This function returns the last error code and it is the
  * equivalent to the :ref:`exit-status` of :manpage:`aria2c(1)`.
  */
-int sessionFinal(Session* session);
+extern "C" int sessionFinal(Session* session);
 
 /**
  * @enum
@@ -250,7 +251,7 @@ enum RUN_MODE {
  *
  * In either case, this function returns negative error code on error.
  */
-int run(Session* session, RUN_MODE mode);
+extern "C" int run(Session* session, RUN_MODE mode);
 
 /**
  * @function
@@ -258,6 +259,7 @@ int run(Session* session, RUN_MODE mode);
  * Returns textual representation of the |gid|.
  */
 std::string gidToHex(A2Gid gid);
+extern "C" void gidToHex(A2Gid gid, char* hex);
 
 /**
  * @function
@@ -265,13 +267,14 @@ std::string gidToHex(A2Gid gid);
  * Returns GID converted from the textual representation |hex|.
  */
 A2Gid hexToGid(const std::string& hex);
+extern "C" A2Gid hexToGid(const char* hex);
 
 /**
  * @function
  *
  * Returns true if the |gid| is invalid.
  */
-bool isNull(A2Gid gid);
+extern "C" bool isNull(A2Gid gid);
 
 /**
  * @function
@@ -293,6 +296,8 @@ bool isNull(A2Gid gid);
  */
 int addUri(Session* session, A2Gid* gid, const std::vector<std::string>& uris,
            const KeyVals& options, int position = -1);
+
+extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_count);
 
 /**
  * @function
@@ -353,6 +358,7 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
  * Returns the array of active download GID.
  */
 std::vector<A2Gid> getActiveDownload(Session* session);
+extern "C" void getActiveDownload(Session* session, A2Gid* gid_list, int gid_max_count);
 
 /**
  * @function
@@ -364,7 +370,7 @@ std::vector<A2Gid> getActiveDownload(Session* session);
  * takes time such as contacting BitTorrent tracker. This function
  * returns 0 if it succeeds, or negative error code.
  */
-int removeDownload(Session* session, A2Gid gid, bool force = false);
+extern "C" int removeDownload(Session* session, A2Gid gid, bool force = false);
 
 /**
  * @function
@@ -384,7 +390,7 @@ int removeDownload(Session* session, A2Gid gid, bool force = false);
  * :member:`SessionConfig::keepRunning` to true. Otherwise, the
  * behavior is undefined.
  */
-int pauseDownload(Session* session, A2Gid gid, bool force = false);
+extern "C" int pauseDownload(Session* session, A2Gid gid, bool force = false);
 
 /**
  * @function
@@ -394,7 +400,7 @@ int pauseDownload(Session* session, A2Gid gid, bool force = false);
  * makes the download eligible to restart. This function returns 0 if
  * it succeeds, or negative error code.
  */
-int unpauseDownload(Session* session, A2Gid gid);
+extern "C" int unpauseDownload(Session* session, A2Gid gid);
 
 /**
  * @function
@@ -512,6 +518,7 @@ struct GlobalStat {
  * speed.
  */
 GlobalStat getGlobalStat(Session* session);
+extern "C" void getGlobalStat(Session* session, int* downloadSpeed, int* uploadSpeed, int* numActive, int* numWaiting, int* numStopped);
 
 /**
  * @enum
@@ -560,7 +567,7 @@ enum OffsetMode {
  * This function returns the final destination position of this
  * download, or negative error code.
  */
-int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how);
+extern "C" int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how);
 
 /**
  * @function
@@ -571,7 +578,7 @@ int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how);
  * calling :func:`run()` function until it returns 0.  This function
  * returns 0 if it succeeds, or negative error code.
  */
-int shutdown(Session* session, bool force = false);
+extern "C" int shutdown(Session* session, bool force = false);
 
 /**
  * @enum
@@ -878,14 +885,14 @@ public:
  * responsibility of the caller to call :func:`deleteDownloadHandle()`
  * to delete handle object.
  */
-DownloadHandle* getDownloadHandle(Session* session, A2Gid gid);
+extern "C" DownloadHandle* getDownloadHandle(Session* session, A2Gid gid);
 
 /**
  * @function
  *
  * Deallocates the |dh|. Calling this function with ``NULL`` is safe.
  */
-void deleteDownloadHandle(DownloadHandle* dh);
+extern "C" void deleteDownloadHandle(DownloadHandle* dh);
 
 } // namespace aria2
 

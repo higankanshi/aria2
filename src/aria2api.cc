@@ -87,7 +87,7 @@ namespace {
 Platform* platform = nullptr;
 } // namespace
 
-int libraryInit()
+extern "C" int libraryInit()
 {
   global::initConsole(true);
   try {
@@ -101,7 +101,7 @@ int libraryInit()
   return 0;
 }
 
-int libraryDeinit()
+extern "C" int libraryDeinit()
 {
   delete platform;
   return 0;
@@ -144,20 +144,31 @@ Session* sessionNew(const KeyVals& options, const SessionConfig& config)
   return session.release();
 }
 
-int sessionFinal(Session* session)
+extern "C" Session* sessionNewEx(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
+{
+    SessionConfig config;
+    config.keepRunning = keepRunning;
+    config.useSignalHandler = useSignalHandler;
+    config.downloadEventCallback = downloadEventCallback;
+    config.userData = userData;
+
+    return sessionNew(KeyVals(), config);
+}
+
+extern "C" int sessionFinal(Session* session)
 {
   error_code::Value rv = session->context->reqinfo->getResult();
   delete session;
   return rv;
 }
 
-int run(Session* session, RUN_MODE mode)
+extern "C" int run(Session* session, RUN_MODE mode)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   return e->run(mode == RUN_ONCE);
 }
 
-int shutdown(Session* session, bool force)
+extern "C" int shutdown(Session* session, bool force)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   if (force) {
@@ -174,6 +185,15 @@ int shutdown(Session* session, bool force)
 
 std::string gidToHex(A2Gid gid) { return GroupId::toHex(gid); }
 
+extern "C" void gidToHex(A2Gid gid, char* hex)
+{
+    const std::string hex_str = GroupId::toHex(gid);
+    if (hex)
+    {
+        strcpy(hex, hex_str.c_str());
+    }
+}
+
 A2Gid hexToGid(const std::string& hex)
 {
   A2Gid gid;
@@ -185,7 +205,13 @@ A2Gid hexToGid(const std::string& hex)
   }
 }
 
-bool isNull(A2Gid gid) { return gid == 0; }
+extern "C" A2Gid hexToGid(const char* hex)
+{
+    const std::string hex_str = hex ? hex : "";
+    return hexToGid(hex_str);
+}
+
+extern "C" bool isNull(A2Gid gid) { return gid == 0; }
 
 namespace {
 template <typename InputIterator, typename Pred>
@@ -288,6 +314,17 @@ int addUri(Session* session, A2Gid* gid, const std::vector<std::string>& uris,
   return 0;
 }
 
+extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_count)
+{
+    std::vector<std::string> uri_list;
+    for (int i = 0; i < uri_count; ++i)
+    {
+        uri_list.push_back(uris[i]);
+    }
+
+    return addUri(session, gid, uri_list, KeyVals());
+}
+
 int addMetalink(Session* session, std::vector<A2Gid>* gids,
                 const std::string& metalinkFile, const KeyVals& options,
                 int position)
@@ -366,7 +403,7 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                     options, position);
 }
 
-int removeDownload(Session* session, A2Gid gid, bool force)
+extern "C" int removeDownload(Session* session, A2Gid gid, bool force)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   std::shared_ptr<RequestGroup> group = e->getRequestGroupMan()->findGroup(gid);
@@ -395,7 +432,7 @@ int removeDownload(Session* session, A2Gid gid, bool force)
   return 0;
 }
 
-int pauseDownload(Session* session, A2Gid gid, bool force)
+extern "C" int pauseDownload(Session* session, A2Gid gid, bool force)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   std::shared_ptr<RequestGroup> group = e->getRequestGroupMan()->findGroup(gid);
@@ -409,7 +446,7 @@ int pauseDownload(Session* session, A2Gid gid, bool force)
   return -1;
 }
 
-int unpauseDownload(Session* session, A2Gid gid)
+extern "C" int unpauseDownload(Session* session, A2Gid gid)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   std::shared_ptr<RequestGroup> group = e->getRequestGroupMan()->findGroup(gid);
@@ -424,7 +461,7 @@ int unpauseDownload(Session* session, A2Gid gid)
   return 0;
 }
 
-int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how)
+extern "C" int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   try {
@@ -522,6 +559,36 @@ GlobalStat getGlobalStat(Session* session)
   return res;
 }
 
+extern "C" void getGlobalStat(Session* session, int* downloadSpeed, int* uploadSpeed, int* numActive, int* numWaiting, int* numStopped)
+{
+    GlobalStat global_stat = getGlobalStat(session);
+
+    if (downloadSpeed)
+    {
+        *downloadSpeed = global_stat.downloadSpeed;
+    }
+
+    if (uploadSpeed)
+    {
+        *uploadSpeed = global_stat.uploadSpeed;
+    }
+
+    if (numActive)
+    {
+        *numActive = global_stat.numActive;
+    }
+
+    if (numWaiting)
+    {
+        *numWaiting = global_stat.numWaiting;
+    }
+
+    if (numStopped)
+    {
+        *numStopped = global_stat.numStopped;
+    }
+}
+
 std::vector<A2Gid> getActiveDownload(Session* session)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
@@ -531,6 +598,17 @@ std::vector<A2Gid> getActiveDownload(Session* session)
     res.push_back(group->getGID());
   }
   return res;
+}
+
+extern "C" void getActiveDownload(Session* session, A2Gid* gid_list, int gid_max_count)
+{
+    std::vector<A2Gid> gids = getActiveDownload(session);
+    
+    const std::vector<A2Gid>::size_type gids_count = gids.size();
+    for (std::vector<A2Gid>::size_type i = 0; i < gids_count && i < gid_max_count; ++i)
+    {
+        gid_list[i] = gids[i];
+    }
 }
 
 namespace {
@@ -864,7 +942,7 @@ struct DownloadResultDH : public DownloadHandle {
 };
 } // namespace
 
-DownloadHandle* getDownloadHandle(Session* session, A2Gid gid)
+extern "C" DownloadHandle* getDownloadHandle(Session* session, A2Gid gid)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   auto& rgman = e->getRequestGroupMan();
@@ -881,6 +959,6 @@ DownloadHandle* getDownloadHandle(Session* session, A2Gid gid)
   return nullptr;
 }
 
-void deleteDownloadHandle(DownloadHandle* dh) { delete dh; }
+extern "C" void deleteDownloadHandle(DownloadHandle* dh) { delete dh; }
 
 } // namespace aria2
