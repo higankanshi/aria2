@@ -433,6 +433,7 @@ extern "C" int unpauseDownload(Session* session, A2Gid gid);
  * This function returns 0 if it succeeds, or negative error code.
  */
 int changeOption(Session* session, A2Gid gid, const KeyVals& options);
+extern "C" int changeOption(Session* session, A2Gid gid, const char* name, const char* value);
 
 /**
  * @function
@@ -441,6 +442,7 @@ int changeOption(Session* session, A2Gid gid, const KeyVals& options);
  * available, returns empty string.
  */
 const std::string& getGlobalOption(Session* session, const std::string& name);
+extern "C" void getGlobalOption(Session* session, const char* name, char* value);
 
 /**
  * @function
@@ -450,6 +452,8 @@ const std::string& getGlobalOption(Session* session, const std::string& name);
  * :func:`sessionNew()`, configuration files or API functions.
  */
 KeyVals getGlobalOptions(Session* session);
+extern "C" int getGlobalOptionsNum(Session* session);
+extern "C" void getGlobalOptionByIndex(Session* session, int index, char* name, char* value);
 
 /**
  * @function
@@ -482,6 +486,7 @@ KeyVals getGlobalOptions(Session* session);
  * This function returns 0 if it succeeds, or negative error code.
  */
 int changeGlobalOption(Session* session, const KeyVals& options);
+extern "C" int changeGlobalOption(Session* session, const char* name, const char* value);
 
 /**
  * @struct

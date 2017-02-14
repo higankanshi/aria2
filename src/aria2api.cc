@@ -501,6 +501,20 @@ int changeOption(Session* session, A2Gid gid, const KeyVals& options)
   }
 }
 
+extern "C" int changeOption(Session* session, A2Gid gid, const char* name, const char* value)
+{
+    if (name)
+    {
+        KeyVals option;
+
+        option.push_back(std::make_pair<std::string, std::string>(name, value ? value : ""));
+
+        return changeOption(session, gid, option);
+    }
+
+    return -1;
+}
+
 const std::string& getGlobalOption(Session* session, const std::string& name)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
@@ -511,6 +525,14 @@ const std::string& getGlobalOption(Session* session, const std::string& name)
   else {
     return A2STR::NIL;
   }
+}
+
+extern "C" void getGlobalOption(Session* session, const char* name, char* value)
+{
+    if (name && value)
+    {
+        strcpy(value, getGlobalOption(session, name).c_str());
+    }
 }
 
 KeyVals getGlobalOptions(Session* session)
@@ -529,6 +551,22 @@ KeyVals getGlobalOptions(Session* session)
   return options;
 }
 
+extern "C" int getGlobalOptionsNum(Session* session)
+{
+    return getGlobalOptions(session).size();
+}
+
+extern "C" void getGlobalOptionByIndex(Session* session, int index, char* name, char* value)
+{
+    if (name && value)
+    {
+        const KeyVals options = getGlobalOptions(session);
+
+        strcpy(name, options[index].first.c_str());
+        strcpy(value, options[index].second.c_str());
+    }
+}
+
 int changeGlobalOption(Session* session, const KeyVals& options)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
@@ -543,6 +581,20 @@ int changeGlobalOption(Session* session, const KeyVals& options)
   }
   changeGlobalOption(option, e.get());
   return 0;
+}
+
+extern "C" int changeGlobalOption(Session* session, const char* name, const char* value)
+{
+    if (name)
+    {
+        KeyVals option;
+
+        option.push_back(std::make_pair<std::string, std::string>(name, value ? value : ""));
+
+        return changeGlobalOption(session, option);
+    }
+
+    return -1;
 }
 
 GlobalStat getGlobalStat(Session* session)
