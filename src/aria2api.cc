@@ -144,7 +144,7 @@ Session* sessionNew(const KeyVals& options, const SessionConfig& config)
   return session.release();
 }
 
-extern "C" Session* sessionNewEx(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
+extern "C" Session* sessionNew(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
 {
     SessionConfig config;
     config.keepRunning = keepRunning;
@@ -960,5 +960,227 @@ extern "C" DownloadHandle* getDownloadHandle(Session* session, A2Gid gid)
 }
 
 extern "C" void deleteDownloadHandle(DownloadHandle* dh) { delete dh; }
+
+extern "C" DownloadStatus getStatus(DownloadHandle* dh)
+{
+    return dh ? dh->getStatus() : DOWNLOAD_REMOVED;
+}
+
+extern "C" int64_t getTotalLength(DownloadHandle* dh)
+{
+    return dh ? dh->getTotalLength() : 0;
+}
+
+extern "C" int64_t getCompletedLength(DownloadHandle* dh)
+{
+    return dh ? dh->getCompletedLength() : 0;
+}
+
+extern "C" int64_t getUploadLength(DownloadHandle* dh)
+{
+    return dh ? dh->getUploadLength() : 0;
+}
+
+extern "C" void getBitfield(DownloadHandle* dh, char* bitfield)
+{
+    if (dh && bitfield)
+    {
+        strcpy(bitfield, dh->getBitfield().c_str());
+    }
+}
+
+extern "C" int getDownloadSpeed(DownloadHandle* dh)
+{
+    return dh ? dh->getDownloadSpeed() : 0;
+}
+
+extern "C" int getUploadSpeed(DownloadHandle* dh)
+{
+    return dh ? dh->getUploadSpeed() : 0;
+}
+
+extern "C" void getInfoHash(DownloadHandle* dh, char* hash)
+{
+    if (dh && hash)
+    {
+        strcpy(hash, dh->getInfoHash().c_str());
+    }
+}
+
+extern "C" size_t getPieceLength(DownloadHandle* dh)
+{
+    return dh ? dh->getPieceLength() : 0;
+}
+
+extern "C" int getNumPieces(DownloadHandle* dh)
+{
+    return dh ? dh->getNumPieces() : 0;
+}
+
+extern "C" int getConnections(DownloadHandle* dh)
+{
+    return dh ? dh->getConnections() : 0;
+}
+
+extern "C" int getErrorCode(DownloadHandle* dh)
+{
+    return dh ? dh->getErrorCode() : 0;
+}
+
+extern "C" void getFollowedBy(DownloadHandle* dh, A2Gid* gid_list, int gid_max_count)
+{
+    if (dh && gid_list)
+    {
+        const std::vector<A2Gid>& gids = dh->getFollowedBy();
+
+        const std::vector<A2Gid>::size_type gids_count = gids.size();
+        for (std::vector<A2Gid>::size_type i = 0; i < gids_count && i < gid_max_count; ++i)
+        {
+            gid_list[i] = gids[i];
+        }
+    }
+}
+
+extern "C" A2Gid getFollowing(DownloadHandle* dh)
+{
+    return dh ? dh->getFollowing() : 0;
+}
+
+extern "C" A2Gid getBelongsTo(DownloadHandle* dh)
+{
+    return dh ? dh->getBelongsTo() : 0;
+}
+
+extern "C" void getDir(DownloadHandle* dh, char* dir)
+{
+    if (dh && dir)
+    {
+        strcpy(dir, dh->getDir().c_str());
+    }
+}
+
+extern "C" int getNumFiles(DownloadHandle* dh)
+{
+    return dh ? dh->getNumFiles() : 0;
+}
+
+extern "C" int getFileIndex(DownloadHandle* dh, int file_index)
+{
+    return dh ? dh->getFile(file_index).index : 0;
+}
+
+extern "C" void getFilePath(DownloadHandle* dh, int file_index, char* path)
+{
+    if (dh && path)
+    {
+        strcpy(path, dh->getFile(file_index).path.c_str());
+    }
+}
+
+extern "C" int64_t getFileLength(DownloadHandle* dh, int file_index)
+{
+    return dh ? dh->getFile(file_index).length : 0;
+}
+
+extern "C" int64_t getFileCompletedLength(DownloadHandle* dh, int file_index)
+{
+    return dh ? dh->getFile(file_index).completedLength : 0;
+}
+
+extern "C" bool isFileSelected(DownloadHandle* dh, int file_index)
+{
+    return dh ? dh->getFile(file_index).selected : 0;
+}
+
+extern "C" int getFileUrisNum(DownloadHandle* dh, int file_index)
+{
+    return dh ? dh->getFile(file_index).uris.size() : 0;
+}
+
+extern "C" void getFileUri(DownloadHandle* dh, int file_index, int uri_index, char* uri, UriStatus* status)
+{
+    if (dh)
+    {
+        const UriData data = dh->getFile(file_index).uris[uri_index];
+
+        if (uri)
+        {
+            strcpy(uri, data.uri.c_str());
+        }
+
+        if (status)
+        {
+            *status = data.status;
+        }
+    }
+}
+
+extern "C" int getBtMetaAnnounceListNum(DownloadHandle* dh)
+{
+    return dh ? dh->getBtMetaInfo().announceList.size() : 0;
+}
+
+extern "C" int getBtMetaAnnounceCount(DownloadHandle* dh, int announce_list_index)
+{
+    return dh ? dh->getBtMetaInfo().announceList[announce_list_index].size() : 0;
+}
+
+extern "C" void getBtMetaAnnounce(DownloadHandle* dh, int announce_list_index, int announce_index, char* announce)
+{
+    if (dh && announce)
+    {
+        strcpy(announce, dh->getBtMetaInfo().announceList[announce_list_index][announce_index].c_str());
+    }
+}
+
+extern "C" void getBtMetaComment(DownloadHandle* dh, char* comment)
+{
+    if (dh && comment)
+    {
+        strcpy(comment, dh->getBtMetaInfo().comment.c_str());
+    }
+}
+
+extern "C" time_t getBtMetaCreationDate(DownloadHandle* dh)
+{
+    return dh ? dh->getBtMetaInfo().creationDate : 0;
+}
+
+extern "C" BtFileMode getBtMetaMode(DownloadHandle* dh)
+{
+    return dh ? dh->getBtMetaInfo().mode : BT_FILE_MODE_NONE;
+}
+
+extern "C" void getBtMetaName(DownloadHandle* dh, char* name)
+{
+    if (dh && name)
+    {
+        strcpy(name, dh->getBtMetaInfo().name.c_str());
+    }
+}
+
+extern "C" void getOption(DownloadHandle* dh, const char* name, char* value)
+{
+    if (dh && name && value)
+    {
+        strcpy(value, dh->getOption(name).c_str());
+    }
+}
+
+extern "C" int getOptionsNum(DownloadHandle* dh)
+{
+    return dh ? dh->getOptions().size() : 0;
+}
+
+extern "C" void getOptionByIndex(DownloadHandle* dh, int option_index, char* name, char* value)
+{
+    if (dh && name && value)
+    {
+        std::pair<std::string, std::string> option = dh->getOptions()[option_index];
+
+        strcpy(name, option.first.c_str());
+        strcpy(value, option.second.c_str());
+    }
+}
 
 } // namespace aria2
