@@ -202,7 +202,7 @@ struct Entry{
 struct EntrySet{
   int length;
   Entry* entries;
-}
+};
 
 /**
  * @function
