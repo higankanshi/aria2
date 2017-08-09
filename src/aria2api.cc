@@ -155,6 +155,23 @@ extern "C" Session* sessionNew(bool keepRunning, bool useSignalHandler, Download
     return sessionNew(KeyVals(), config);
 }
 
+extern "C" Session* sessionNewEx(EntrySet* options, bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
+{
+    SessionConfig config;
+    config.keepRunning = keepRunning;
+    config.useSignalHandler = useSignalHandler;
+    config.downloadEventCallback = downloadEventCallback;
+    config.userData = userData;
+
+    auto opt = KeyVals();
+    for (int i = 0; i < options->length; ++i)
+    {
+        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
+    }
+
+    return sessionNew(opt, config);
+}
+
 extern "C" int sessionFinal(Session* session)
 {
   error_code::Value rv = session->context->reqinfo->getResult();
@@ -325,6 +342,23 @@ extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_c
     return addUri(session, gid, uri_list, KeyVals());
 }
 
+extern "C" int addUriEx(Session* session, A2Gid* gid, const char** uris, int uri_count, EntrySet* options, int position)
+{
+    std::vector<std::string> uri_list;
+    for (int i = 0; i < uri_count; ++i)
+    {
+        uri_list.push_back(uris[i]);
+    }
+
+    auto opt = KeyVals();
+    for (int i = 0; i < options->length; ++i)
+    {
+        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
+    }
+
+    return addUri(session, gid, uri_list, opt, position);
+}
+
 int addMetalink(Session* session, std::vector<A2Gid>* gids,
                 const std::string& metalinkFile, const KeyVals& options,
                 int position)
@@ -365,6 +399,24 @@ int addMetalink(Session* session, std::vector<A2Gid>* gids,
 #endif // !ENABLE_METALINK
 }
 
+extern "C" int addMetalink(Session* session, A2Gid** gids, const char* metalinkFile, EntrySet* options, int position){
+    std::vector<A2Gid> resultGids;
+
+    auto opt = KeyVals();
+    for (int i = 0; i < options->length; ++i)
+    {
+        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
+    }
+
+    int result = addMetalink(session, &resultGids, std::string(metalinkFile), opt, position);
+
+    for (int i = 0; i < resultGids.size(); ++i){
+      *gids[i] = resultGids.at(i);
+    }
+    
+    return result;
+}
+
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                const std::vector<std::string>& webSeedUris,
                const KeyVals& options, int position)
@@ -396,11 +448,37 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
 #endif // !ENABLE_BITTORRENT
 }
 
+extern "C" int addTorrent(Session* session, A2Gid* gid, const char* torrentFile, const char** webSeedUris, int uri_count, EntrySet* options, int position){
+    auto opt = KeyVals();
+    for (int i = 0; i < options->length; ++i)
+    {
+        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
+    }
+
+    std::vector<std::string> uri_list;
+    for (int i = 0; i < uri_count; ++i)
+    {
+        uri_list.push_back(uris[i]);
+    }
+
+    return addTorrent(session, gid, std::string(torrentFile), uri_list, opt, position);
+}
+
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                const KeyVals& options, int position)
 {
   return addTorrent(session, gid, torrentFile, std::vector<std::string>(),
                     options, position);
+}
+
+extern "C" int addTorrentWithoutSeedUris(Session* session, A2Gid* gid, const char* torrentFile, EntrySet* options, int position){
+    auto opt = KeyVals();
+    for (int i = 0; i < options->length; ++i)
+    {
+        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
+    }
+
+    return addTorrent(session, gid, std::string(torrentFile), opt, position);
 }
 
 extern "C" int removeDownload(Session* session, A2Gid gid, bool force)

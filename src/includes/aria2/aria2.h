@@ -194,6 +194,16 @@ struct SessionConfig {
   void* userData;
 };
 
+struct Entry{
+  char* key;
+  char* value;
+};
+
+struct EntrySet{
+  int length;
+  Entry* entries;
+}
+
 /**
  * @function
  *
@@ -207,6 +217,7 @@ struct SessionConfig {
  */
 Session* sessionNew(const KeyVals& options, const SessionConfig& config);
 extern "C" Session* sessionNew(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData);
+extern "C" Session* sessionNewEx(EntrySet* options, bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData);
 
 /**
  * @function
@@ -298,6 +309,7 @@ int addUri(Session* session, A2Gid* gid, const std::vector<std::string>& uris,
            const KeyVals& options, int position = -1);
 
 extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_count);
+extern "C" int addUriEx(Session* session, A2Gid* gid, const char** uris, int uri_count, EntrySet* options, int position);
 
 /**
  * @function
@@ -316,6 +328,7 @@ extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_c
 int addMetalink(Session* session, std::vector<A2Gid>* gids,
                 const std::string& metalinkFile, const KeyVals& options,
                 int position = -1);
+extern "C" int addMetalink(Session* session, A2Gid** gids, const char* metalinkFile, EntrySet* options, int position);
 
 /**
  * @function
@@ -342,6 +355,7 @@ int addMetalink(Session* session, std::vector<A2Gid>* gids,
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                const std::vector<std::string>& webSeedUris,
                const KeyVals& options, int position = -1);
+extern "C" int addTorrent(Session* session, A2Gid* gid, const char* torrentFile, const char** webSeedUris, int uri_count, EntrySet* options, int position);
 
 /**
  * @function
@@ -351,6 +365,7 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
  */
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                const KeyVals& options, int position = -1);
+extern "C" int addTorrentWithoutSeedUris(Session* session, A2Gid* gid, const char* torrentFile, EntrySet* options, int position);
 
 /**
  * @function
