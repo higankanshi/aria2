@@ -458,7 +458,7 @@ extern "C" int addTorrent(Session* session, A2Gid* gid, const char* torrentFile,
     std::vector<std::string> uri_list;
     for (int i = 0; i < uri_count; ++i)
     {
-        uri_list.push_back(uris[i]);
+        uri_list.push_back(webSeedUris[i]);
     }
 
     return addTorrent(session, gid, std::string(torrentFile), uri_list, opt, position);
