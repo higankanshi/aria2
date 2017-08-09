@@ -57,6 +57,25 @@ Basic Options
   See also the :option:`--split <-s>` option.
   Default: ``5``
 
+  .. note::
+
+     :option:`--max-concurrent-downloads` limits the number of items
+     which are downloaded concurrently.  :option:`--split <-s>` and
+     :option:`--min-split-size <-k>` affect the number of connections
+     inside each item.  Imagine that you have an input file (see
+     :option:`--input-file <-i>` option) like this:
+
+     .. code-block:: text
+
+	http://example.com/foo
+	http://example.com/bar
+
+     Here is 2 download items.  aria2 can download these items
+     concurrently if the value more than or equal 2 is given to
+     :option:`--max-concurrent-downloads`.  In each download item, you
+     can configure the number of connections using :option:`--split
+     <-s>` and/or :option:`--min-split-size <-k>`, etc.
+
 .. option:: -V, --check-integrity[=true|false]
 
   Check file integrity by validating piece hashes or a hash of entire
@@ -694,6 +713,14 @@ BitTorrent Specific Options
  option to ``false``.  This option has effect only on BitTorrent download.
  Default: ``true``
 
+.. option:: --bt-load-saved-metadata[=true|false]
+
+  Before getting torrent metadata from DHT when downloading with
+  magnet link, first try to read file saved by
+  :option:`--bt-save-metadata` option.  If it is successful, then skip
+  downloading metadata from DHT.
+  Default: ``false``
+
 .. option:: --bt-lpd-interface=<INTERFACE>
 
   Use given interface for Local Peer Discovery. If this option is not
@@ -926,6 +953,15 @@ BitTorrent Specific Options
   Default: ``A2-$MAJOR-$MINOR-$PATCH-``, $MAJOR, $MINOR and $PATCH are
   replaced by major, minor and patch version number respectively.  For
   instance, aria2 version 1.18.8 has prefix ID ``A2-1-18-8-``.
+
+.. option:: --peer-agent=<PEER_AGENT>
+
+  Specify the string used during the bitorrent extended handshake
+  for the peer's client version.
+
+  Default: ``aria2/$MAJOR.$MINOR.$PATCH``, $MAJOR, $MINOR and $PATCH are
+  replaced by major, minor and patch version number respectively.  For
+  instance, aria2 version 1.18.8 has peer agent ``aria2/1.18.8``.
 
 .. option:: --seed-ratio=<RATIO>
 
@@ -2092,6 +2128,7 @@ of URIs. These optional lines must start with white space(s).
   * :option:`bt-external-ip <--bt-external-ip>`
   * :option:`bt-force-encryption <--bt-force-encryption>`
   * :option:`bt-hash-check-seed <--bt-hash-check-seed>`
+  * :option:`bt-load-saved-metadata <--bt-load-saved-metadata>`
   * :option:`bt-max-peers <--bt-max-peers>`
   * :option:`bt-metadata-only <--bt-metadata-only>`
   * :option:`bt-min-crypto-level <--bt-min-crypto-level>`
@@ -2563,7 +2600,7 @@ For information on the *secret* parameter, see :ref:`rpc_auth`.
 
 .. function:: aria2.unpauseAll([secret])
 
-  This method is equal to calling :func:`aria2.unpause` for every active/waiting
+  This method is equal to calling :func:`aria2.unpause` for every paused
   download. This methods returns ``OK``.
 
 .. function:: aria2.tellStatus([secret], gid[, keys])
@@ -4124,7 +4161,9 @@ Specify the output file name
 
 To specify the output file name for BitTorrent downloads, you need to know
 the index of file in the torrent (see :option:`--show-files <-S>`). For
-example, the output looks like this::
+example, the output looks like this:
+
+.. code-block:: text
 
   idx|path/length
   ===+======================
