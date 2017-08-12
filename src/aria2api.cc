@@ -728,7 +728,7 @@ extern "C" void getGlobalStat(Session* session, int* downloadSpeed,
   if (numStopped) {
     *numStopped = global_stat.numStopped;
   }
-}
+} 
 
 std::vector<A2Gid> getActiveDownload(Session* session)
 {
@@ -747,7 +747,7 @@ extern "C" size_t getActiveDownload(Session* session, A2Gid* gid_list)
   const size_t gids_count = gids.size();
 
   if (gid_list != NULL) {
-    for (size_t i = 0; i < gids_count && i < gid_max_count; ++i) {
+    for (size_t i = 0; i < gids_count; ++i) {
       gid_list[i] = gids[i];
     }
   }
