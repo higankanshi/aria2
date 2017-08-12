@@ -644,7 +644,7 @@ KeyVals getGlobalOptions(Session* session)
   return options;
 }
 
-extern "C" size_t getGlobalOptions(Session* session, char** name, char** value);
+extern "C" size_t getGlobalOptions(Session* session, char** name, char** value)
 {
   const KeyVals options = getGlobalOptions(session);
 
