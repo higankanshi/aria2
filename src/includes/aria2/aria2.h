@@ -373,7 +373,7 @@ extern "C" int addTorrentWithoutSeedUris(Session* session, A2Gid* gid, const cha
  * Returns the array of active download GID.
  */
 std::vector<A2Gid> getActiveDownload(Session* session);
-extern "C" void getActiveDownload(Session* session, A2Gid* gid_list, int gid_max_count);
+extern "C" size_t getActiveDownload(Session* session, A2Gid* gid_list);
 
 /**
  * @function
@@ -467,8 +467,7 @@ extern "C" void getGlobalOption(Session* session, const char* name, char* value)
  * :func:`sessionNew()`, configuration files or API functions.
  */
 KeyVals getGlobalOptions(Session* session);
-extern "C" int getGlobalOptionsNum(Session* session);
-extern "C" void getGlobalOptionByIndex(Session* session, int index, char* name, char* value);
+extern "C" size_t getGlobalOptions(Session* session, char** name, char** value);
 
 /**
  * @function

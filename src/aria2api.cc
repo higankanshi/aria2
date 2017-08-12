@@ -144,32 +144,37 @@ Session* sessionNew(const KeyVals& options, const SessionConfig& config)
   return session.release();
 }
 
-extern "C" Session* sessionNew(bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
+extern "C" Session* sessionNew(bool keepRunning, bool useSignalHandler,
+                               DownloadEventCallback downloadEventCallback,
+                               void* userData)
 {
-    SessionConfig config;
-    config.keepRunning = keepRunning;
-    config.useSignalHandler = useSignalHandler;
-    config.downloadEventCallback = downloadEventCallback;
-    config.userData = userData;
+  SessionConfig config;
+  config.keepRunning = keepRunning;
+  config.useSignalHandler = useSignalHandler;
+  config.downloadEventCallback = downloadEventCallback;
+  config.userData = userData;
 
-    return sessionNew(KeyVals(), config);
+  return sessionNew(KeyVals(), config);
 }
 
-extern "C" Session* sessionNewEx(EntrySet* options, bool keepRunning, bool useSignalHandler, DownloadEventCallback downloadEventCallback, void* userData)
+extern "C" Session* sessionNewEx(EntrySet* options, bool keepRunning,
+                                 bool useSignalHandler,
+                                 DownloadEventCallback downloadEventCallback,
+                                 void* userData)
 {
-    SessionConfig config;
-    config.keepRunning = keepRunning;
-    config.useSignalHandler = useSignalHandler;
-    config.downloadEventCallback = downloadEventCallback;
-    config.userData = userData;
+  SessionConfig config;
+  config.keepRunning = keepRunning;
+  config.useSignalHandler = useSignalHandler;
+  config.downloadEventCallback = downloadEventCallback;
+  config.userData = userData;
 
-    auto opt = KeyVals();
-    for (int i = 0; i < options->length; ++i)
-    {
-        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
-    }
+  auto opt = KeyVals();
+  for (int i = 0; i < options->length; ++i) {
+    opt.push_back(std::pair<std::string, std::string>(
+        options->entries[i].key, options->entries[i].value));
+  }
 
-    return sessionNew(opt, config);
+  return sessionNew(opt, config);
 }
 
 extern "C" int sessionFinal(Session* session)
@@ -204,11 +209,10 @@ std::string gidToHex(A2Gid gid) { return GroupId::toHex(gid); }
 
 extern "C" void gidToHex(A2Gid gid, char* hex)
 {
-    const std::string hex_str = GroupId::toHex(gid);
-    if (hex)
-    {
-        strcpy(hex, hex_str.c_str());
-    }
+  const std::string hex_str = GroupId::toHex(gid);
+  if (hex) {
+    strcpy(hex, hex_str.c_str());
+  }
 }
 
 A2Gid hexToGid(const std::string& hex)
@@ -224,8 +228,8 @@ A2Gid hexToGid(const std::string& hex)
 
 extern "C" A2Gid hexToGid(const char* hex)
 {
-    const std::string hex_str = hex ? hex : "";
-    return hexToGid(hex_str);
+  const std::string hex_str = hex ? hex : "";
+  return hexToGid(hex_str);
 }
 
 extern "C" bool isNull(A2Gid gid) { return gid == 0; }
@@ -331,32 +335,32 @@ int addUri(Session* session, A2Gid* gid, const std::vector<std::string>& uris,
   return 0;
 }
 
-extern "C" int addUri(Session* session, A2Gid* gid, const char** uris, int uri_count)
+extern "C" int addUri(Session* session, A2Gid* gid, const char** uris,
+                      int uri_count)
 {
-    std::vector<std::string> uri_list;
-    for (int i = 0; i < uri_count; ++i)
-    {
-        uri_list.push_back(uris[i]);
-    }
+  std::vector<std::string> uri_list;
+  for (int i = 0; i < uri_count; ++i) {
+    uri_list.push_back(uris[i]);
+  }
 
-    return addUri(session, gid, uri_list, KeyVals());
+  return addUri(session, gid, uri_list, KeyVals());
 }
 
-extern "C" int addUriEx(Session* session, A2Gid* gid, const char** uris, int uri_count, EntrySet* options, int position)
+extern "C" int addUriEx(Session* session, A2Gid* gid, const char** uris,
+                        int uri_count, EntrySet* options, int position)
 {
-    std::vector<std::string> uri_list;
-    for (int i = 0; i < uri_count; ++i)
-    {
-        uri_list.push_back(uris[i]);
-    }
+  std::vector<std::string> uri_list;
+  for (int i = 0; i < uri_count; ++i) {
+    uri_list.push_back(uris[i]);
+  }
 
-    auto opt = KeyVals();
-    for (int i = 0; i < options->length; ++i)
-    {
-        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
-    }
+  auto opt = KeyVals();
+  for (int i = 0; i < options->length; ++i) {
+    opt.push_back(std::pair<std::string, std::string>(
+        options->entries[i].key, options->entries[i].value));
+  }
 
-    return addUri(session, gid, uri_list, opt, position);
+  return addUri(session, gid, uri_list, opt, position);
 }
 
 int addMetalink(Session* session, std::vector<A2Gid>* gids,
@@ -399,22 +403,26 @@ int addMetalink(Session* session, std::vector<A2Gid>* gids,
 #endif // !ENABLE_METALINK
 }
 
-extern "C" int addMetalink(Session* session, A2Gid** gids, const char* metalinkFile, EntrySet* options, int position){
-    std::vector<A2Gid> resultGids;
+extern "C" int addMetalink(Session* session, A2Gid** gids,
+                           const char* metalinkFile, EntrySet* options,
+                           int position)
+{
+  std::vector<A2Gid> resultGids;
 
-    auto opt = KeyVals();
-    for (int i = 0; i < options->length; ++i)
-    {
-        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
-    }
+  auto opt = KeyVals();
+  for (int i = 0; i < options->length; ++i) {
+    opt.push_back(std::pair<std::string, std::string>(
+        options->entries[i].key, options->entries[i].value));
+  }
 
-    int result = addMetalink(session, &resultGids, std::string(metalinkFile), opt, position);
+  int result = addMetalink(session, &resultGids, std::string(metalinkFile), opt,
+                           position);
 
-    for (int i = 0; i < resultGids.size(); ++i){
-      *gids[i] = resultGids.at(i);
-    }
-    
-    return result;
+  for (int i = 0; i < resultGids.size(); ++i) {
+    *gids[i] = resultGids.at(i);
+  }
+
+  return result;
 }
 
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
@@ -448,20 +456,23 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
 #endif // !ENABLE_BITTORRENT
 }
 
-extern "C" int addTorrent(Session* session, A2Gid* gid, const char* torrentFile, const char** webSeedUris, int uri_count, EntrySet* options, int position){
-    auto opt = KeyVals();
-    for (int i = 0; i < options->length; ++i)
-    {
-        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
-    }
+extern "C" int addTorrent(Session* session, A2Gid* gid, const char* torrentFile,
+                          const char** webSeedUris, int uri_count,
+                          EntrySet* options, int position)
+{
+  auto opt = KeyVals();
+  for (int i = 0; i < options->length; ++i) {
+    opt.push_back(std::pair<std::string, std::string>(
+        options->entries[i].key, options->entries[i].value));
+  }
 
-    std::vector<std::string> uri_list;
-    for (int i = 0; i < uri_count; ++i)
-    {
-        uri_list.push_back(webSeedUris[i]);
-    }
+  std::vector<std::string> uri_list;
+  for (int i = 0; i < uri_count; ++i) {
+    uri_list.push_back(webSeedUris[i]);
+  }
 
-    return addTorrent(session, gid, std::string(torrentFile), uri_list, opt, position);
+  return addTorrent(session, gid, std::string(torrentFile), uri_list, opt,
+                    position);
 }
 
 int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
@@ -471,14 +482,17 @@ int addTorrent(Session* session, A2Gid* gid, const std::string& torrentFile,
                     options, position);
 }
 
-extern "C" int addTorrentWithoutSeedUris(Session* session, A2Gid* gid, const char* torrentFile, EntrySet* options, int position){
-    auto opt = KeyVals();
-    for (int i = 0; i < options->length; ++i)
-    {
-        opt.push_back(std::pair<std::string, std::string>(options->entries[i].key, options->entries[i].value));
-    }
+extern "C" int addTorrentWithoutSeedUris(Session* session, A2Gid* gid,
+                                         const char* torrentFile,
+                                         EntrySet* options, int position)
+{
+  auto opt = KeyVals();
+  for (int i = 0; i < options->length; ++i) {
+    opt.push_back(std::pair<std::string, std::string>(
+        options->entries[i].key, options->entries[i].value));
+  }
 
-    return addTorrent(session, gid, std::string(torrentFile), opt, position);
+  return addTorrent(session, gid, std::string(torrentFile), opt, position);
 }
 
 extern "C" int removeDownload(Session* session, A2Gid gid, bool force)
@@ -539,7 +553,8 @@ extern "C" int unpauseDownload(Session* session, A2Gid gid)
   return 0;
 }
 
-extern "C" int changePosition(Session* session, A2Gid gid, int pos, OffsetMode how)
+extern "C" int changePosition(Session* session, A2Gid gid, int pos,
+                              OffsetMode how)
 {
   auto& e = session->context->reqinfo->getDownloadEngine();
   try {
@@ -579,18 +594,19 @@ int changeOption(Session* session, A2Gid gid, const KeyVals& options)
   }
 }
 
-extern "C" int changeOption(Session* session, A2Gid gid, const char* name, const char* value)
+extern "C" int changeOption(Session* session, A2Gid gid, const char* name,
+                            const char* value)
 {
-    if (name)
-    {
-        KeyVals option;
+  if (name) {
+    KeyVals option;
 
-        option.push_back(std::make_pair<std::string, std::string>(name, value ? value : ""));
+    option.push_back(
+        std::make_pair<std::string, std::string>(name, value ? value : ""));
 
-        return changeOption(session, gid, option);
-    }
+    return changeOption(session, gid, option);
+  }
 
-    return -1;
+  return -1;
 }
 
 const std::string& getGlobalOption(Session* session, const std::string& name)
@@ -607,10 +623,9 @@ const std::string& getGlobalOption(Session* session, const std::string& name)
 
 extern "C" void getGlobalOption(Session* session, const char* name, char* value)
 {
-    if (name && value)
-    {
-        strcpy(value, getGlobalOption(session, name).c_str());
-    }
+  if (name && value) {
+    strcpy(value, getGlobalOption(session, name).c_str());
+  }
 }
 
 KeyVals getGlobalOptions(Session* session)
@@ -629,20 +644,18 @@ KeyVals getGlobalOptions(Session* session)
   return options;
 }
 
-extern "C" int getGlobalOptionsNum(Session* session)
+extern "C" size_t getGlobalOptions(Session* session, char** name, char** value);
 {
-    return getGlobalOptions(session).size();
-}
+  const KeyVals options = getGlobalOptions(session);
 
-extern "C" void getGlobalOptionByIndex(Session* session, int index, char* name, char* value)
-{
-    if (name && value)
-    {
-        const KeyVals options = getGlobalOptions(session);
-
-        strcpy(name, options[index].first.c_str());
-        strcpy(value, options[index].second.c_str());
+  if (name != NULL && value != NULL) {
+    for (size_t i = 0, i < options.size(), ++i) {
+      strcpy(name[i], options[i].first.c_str());
+      strcpy(value[i], options[i].second.c_str());
     }
+  }
+
+  return options.size();
 }
 
 int changeGlobalOption(Session* session, const KeyVals& options)
@@ -661,18 +674,19 @@ int changeGlobalOption(Session* session, const KeyVals& options)
   return 0;
 }
 
-extern "C" int changeGlobalOption(Session* session, const char* name, const char* value)
+extern "C" int changeGlobalOption(Session* session, const char* name,
+                                  const char* value)
 {
-    if (name)
-    {
-        KeyVals option;
+  if (name) {
+    KeyVals option;
 
-        option.push_back(std::make_pair<std::string, std::string>(name, value ? value : ""));
+    option.push_back(
+        std::make_pair<std::string, std::string>(name, value ? value : ""));
 
-        return changeGlobalOption(session, option);
-    }
+    return changeGlobalOption(session, option);
+  }
 
-    return -1;
+  return -1;
 }
 
 GlobalStat getGlobalStat(Session* session)
@@ -689,34 +703,31 @@ GlobalStat getGlobalStat(Session* session)
   return res;
 }
 
-extern "C" void getGlobalStat(Session* session, int* downloadSpeed, int* uploadSpeed, int* numActive, int* numWaiting, int* numStopped)
+extern "C" void getGlobalStat(Session* session, int* downloadSpeed,
+                              int* uploadSpeed, int* numActive, int* numWaiting,
+                              int* numStopped)
 {
-    GlobalStat global_stat = getGlobalStat(session);
+  GlobalStat global_stat = getGlobalStat(session);
 
-    if (downloadSpeed)
-    {
-        *downloadSpeed = global_stat.downloadSpeed;
-    }
+  if (downloadSpeed) {
+    *downloadSpeed = global_stat.downloadSpeed;
+  }
 
-    if (uploadSpeed)
-    {
-        *uploadSpeed = global_stat.uploadSpeed;
-    }
+  if (uploadSpeed) {
+    *uploadSpeed = global_stat.uploadSpeed;
+  }
 
-    if (numActive)
-    {
-        *numActive = global_stat.numActive;
-    }
+  if (numActive) {
+    *numActive = global_stat.numActive;
+  }
 
-    if (numWaiting)
-    {
-        *numWaiting = global_stat.numWaiting;
-    }
+  if (numWaiting) {
+    *numWaiting = global_stat.numWaiting;
+  }
 
-    if (numStopped)
-    {
-        *numStopped = global_stat.numStopped;
-    }
+  if (numStopped) {
+    *numStopped = global_stat.numStopped;
+  }
 }
 
 std::vector<A2Gid> getActiveDownload(Session* session)
@@ -730,15 +741,18 @@ std::vector<A2Gid> getActiveDownload(Session* session)
   return res;
 }
 
-extern "C" void getActiveDownload(Session* session, A2Gid* gid_list, int gid_max_count)
+extern "C" size_t getActiveDownload(Session* session, A2Gid* gid_list)
 {
-    std::vector<A2Gid> gids = getActiveDownload(session);
-    
-    const std::vector<A2Gid>::size_type gids_count = gids.size();
-    for (std::vector<A2Gid>::size_type i = 0; i < gids_count && i < gid_max_count; ++i)
-    {
-        gid_list[i] = gids[i];
+  std::vector<A2Gid> gids = getActiveDownload(session);
+  const size_t gids_count = gids.size();
+
+  if (gid_list != NULL) {
+    for (size_t i = 0; i < gids_count && i < gid_max_count; ++i) {
+      gid_list[i] = gids[i];
     }
+  }
+
+  return gids_count;
 }
 
 namespace {
@@ -1093,224 +1107,219 @@ extern "C" void deleteDownloadHandle(DownloadHandle* dh) { delete dh; }
 
 extern "C" DownloadStatus getStatus(DownloadHandle* dh)
 {
-    return dh ? dh->getStatus() : DOWNLOAD_REMOVED;
+  return dh ? dh->getStatus() : DOWNLOAD_REMOVED;
 }
 
 extern "C" int64_t getTotalLength(DownloadHandle* dh)
 {
-    return dh ? dh->getTotalLength() : 0;
+  return dh ? dh->getTotalLength() : 0;
 }
 
 extern "C" int64_t getCompletedLength(DownloadHandle* dh)
 {
-    return dh ? dh->getCompletedLength() : 0;
+  return dh ? dh->getCompletedLength() : 0;
 }
 
 extern "C" int64_t getUploadLength(DownloadHandle* dh)
 {
-    return dh ? dh->getUploadLength() : 0;
+  return dh ? dh->getUploadLength() : 0;
 }
 
 extern "C" void getBitfield(DownloadHandle* dh, char* bitfield)
 {
-    if (dh && bitfield)
-    {
-        strcpy(bitfield, dh->getBitfield().c_str());
-    }
+  if (dh && bitfield) {
+    strcpy(bitfield, dh->getBitfield().c_str());
+  }
 }
 
 extern "C" int getDownloadSpeed(DownloadHandle* dh)
 {
-    return dh ? dh->getDownloadSpeed() : 0;
+  return dh ? dh->getDownloadSpeed() : 0;
 }
 
 extern "C" int getUploadSpeed(DownloadHandle* dh)
 {
-    return dh ? dh->getUploadSpeed() : 0;
+  return dh ? dh->getUploadSpeed() : 0;
 }
 
 extern "C" void getInfoHash(DownloadHandle* dh, char* hash)
 {
-    if (dh && hash)
-    {
-        strcpy(hash, dh->getInfoHash().c_str());
-    }
+  if (dh && hash) {
+    strcpy(hash, dh->getInfoHash().c_str());
+  }
 }
 
 extern "C" size_t getPieceLength(DownloadHandle* dh)
 {
-    return dh ? dh->getPieceLength() : 0;
+  return dh ? dh->getPieceLength() : 0;
 }
 
 extern "C" int getNumPieces(DownloadHandle* dh)
 {
-    return dh ? dh->getNumPieces() : 0;
+  return dh ? dh->getNumPieces() : 0;
 }
 
 extern "C" int getConnections(DownloadHandle* dh)
 {
-    return dh ? dh->getConnections() : 0;
+  return dh ? dh->getConnections() : 0;
 }
 
 extern "C" int getErrorCode(DownloadHandle* dh)
 {
-    return dh ? dh->getErrorCode() : 0;
+  return dh ? dh->getErrorCode() : 0;
 }
 
-extern "C" void getFollowedBy(DownloadHandle* dh, A2Gid* gid_list, int gid_max_count)
+extern "C" void getFollowedBy(DownloadHandle* dh, A2Gid* gid_list,
+                              int gid_max_count)
 {
-    if (dh && gid_list)
-    {
-        const std::vector<A2Gid>& gids = dh->getFollowedBy();
+  if (dh && gid_list) {
+    const std::vector<A2Gid>& gids = dh->getFollowedBy();
 
-        const std::vector<A2Gid>::size_type gids_count = gids.size();
-        for (std::vector<A2Gid>::size_type i = 0; i < gids_count && i < gid_max_count; ++i)
-        {
-            gid_list[i] = gids[i];
-        }
+    const std::vector<A2Gid>::size_type gids_count = gids.size();
+    for (std::vector<A2Gid>::size_type i = 0;
+         i < gids_count && i < gid_max_count; ++i) {
+      gid_list[i] = gids[i];
     }
+  }
 }
 
 extern "C" A2Gid getFollowing(DownloadHandle* dh)
 {
-    return dh ? dh->getFollowing() : 0;
+  return dh ? dh->getFollowing() : 0;
 }
 
 extern "C" A2Gid getBelongsTo(DownloadHandle* dh)
 {
-    return dh ? dh->getBelongsTo() : 0;
+  return dh ? dh->getBelongsTo() : 0;
 }
 
 extern "C" void getDir(DownloadHandle* dh, char* dir)
 {
-    if (dh && dir)
-    {
-        strcpy(dir, dh->getDir().c_str());
-    }
+  if (dh && dir) {
+    strcpy(dir, dh->getDir().c_str());
+  }
 }
 
 extern "C" int getNumFiles(DownloadHandle* dh)
 {
-    return dh ? dh->getNumFiles() : 0;
+  return dh ? dh->getNumFiles() : 0;
 }
 
 extern "C" int getFileIndex(DownloadHandle* dh, int file_index)
 {
-    return dh ? dh->getFile(file_index).index : 0;
+  return dh ? dh->getFile(file_index).index : 0;
 }
 
 extern "C" void getFilePath(DownloadHandle* dh, int file_index, char* path)
 {
-    if (dh && path)
-    {
-        strcpy(path, dh->getFile(file_index).path.c_str());
-    }
+  if (dh && path) {
+    strcpy(path, dh->getFile(file_index).path.c_str());
+  }
 }
 
 extern "C" int64_t getFileLength(DownloadHandle* dh, int file_index)
 {
-    return dh ? dh->getFile(file_index).length : 0;
+  return dh ? dh->getFile(file_index).length : 0;
 }
 
 extern "C" int64_t getFileCompletedLength(DownloadHandle* dh, int file_index)
 {
-    return dh ? dh->getFile(file_index).completedLength : 0;
+  return dh ? dh->getFile(file_index).completedLength : 0;
 }
 
 extern "C" bool isFileSelected(DownloadHandle* dh, int file_index)
 {
-    return dh ? dh->getFile(file_index).selected : 0;
+  return dh ? dh->getFile(file_index).selected : 0;
 }
 
 extern "C" int getFileUrisNum(DownloadHandle* dh, int file_index)
 {
-    return dh ? dh->getFile(file_index).uris.size() : 0;
+  return dh ? dh->getFile(file_index).uris.size() : 0;
 }
 
-extern "C" void getFileUri(DownloadHandle* dh, int file_index, int uri_index, char* uri, UriStatus* status)
+extern "C" void getFileUri(DownloadHandle* dh, int file_index, int uri_index,
+                           char* uri, UriStatus* status)
 {
-    if (dh)
-    {
-        const UriData data = dh->getFile(file_index).uris[uri_index];
+  if (dh) {
+    const UriData data = dh->getFile(file_index).uris[uri_index];
 
-        if (uri)
-        {
-            strcpy(uri, data.uri.c_str());
-        }
-
-        if (status)
-        {
-            *status = data.status;
-        }
+    if (uri) {
+      strcpy(uri, data.uri.c_str());
     }
+
+    if (status) {
+      *status = data.status;
+    }
+  }
 }
 
 extern "C" int getBtMetaAnnounceListNum(DownloadHandle* dh)
 {
-    return dh ? dh->getBtMetaInfo().announceList.size() : 0;
+  return dh ? dh->getBtMetaInfo().announceList.size() : 0;
 }
 
-extern "C" int getBtMetaAnnounceCount(DownloadHandle* dh, int announce_list_index)
+extern "C" int getBtMetaAnnounceCount(DownloadHandle* dh,
+                                      int announce_list_index)
 {
-    return dh ? dh->getBtMetaInfo().announceList[announce_list_index].size() : 0;
+  return dh ? dh->getBtMetaInfo().announceList[announce_list_index].size() : 0;
 }
 
-extern "C" void getBtMetaAnnounce(DownloadHandle* dh, int announce_list_index, int announce_index, char* announce)
+extern "C" void getBtMetaAnnounce(DownloadHandle* dh, int announce_list_index,
+                                  int announce_index, char* announce)
 {
-    if (dh && announce)
-    {
-        strcpy(announce, dh->getBtMetaInfo().announceList[announce_list_index][announce_index].c_str());
-    }
+  if (dh && announce) {
+    strcpy(announce,
+           dh->getBtMetaInfo()
+               .announceList[announce_list_index][announce_index]
+               .c_str());
+  }
 }
 
 extern "C" void getBtMetaComment(DownloadHandle* dh, char* comment)
 {
-    if (dh && comment)
-    {
-        strcpy(comment, dh->getBtMetaInfo().comment.c_str());
-    }
+  if (dh && comment) {
+    strcpy(comment, dh->getBtMetaInfo().comment.c_str());
+  }
 }
 
 extern "C" time_t getBtMetaCreationDate(DownloadHandle* dh)
 {
-    return dh ? dh->getBtMetaInfo().creationDate : 0;
+  return dh ? dh->getBtMetaInfo().creationDate : 0;
 }
 
 extern "C" BtFileMode getBtMetaMode(DownloadHandle* dh)
 {
-    return dh ? dh->getBtMetaInfo().mode : BT_FILE_MODE_NONE;
+  return dh ? dh->getBtMetaInfo().mode : BT_FILE_MODE_NONE;
 }
 
 extern "C" void getBtMetaName(DownloadHandle* dh, char* name)
 {
-    if (dh && name)
-    {
-        strcpy(name, dh->getBtMetaInfo().name.c_str());
-    }
+  if (dh && name) {
+    strcpy(name, dh->getBtMetaInfo().name.c_str());
+  }
 }
 
 extern "C" void getOption(DownloadHandle* dh, const char* name, char* value)
 {
-    if (dh && name && value)
-    {
-        strcpy(value, dh->getOption(name).c_str());
-    }
+  if (dh && name && value) {
+    strcpy(value, dh->getOption(name).c_str());
+  }
 }
 
 extern "C" int getOptionsNum(DownloadHandle* dh)
 {
-    return dh ? dh->getOptions().size() : 0;
+  return dh ? dh->getOptions().size() : 0;
 }
 
-extern "C" void getOptionByIndex(DownloadHandle* dh, int option_index, char* name, char* value)
+extern "C" void getOptionByIndex(DownloadHandle* dh, int option_index,
+                                 char* name, char* value)
 {
-    if (dh && name && value)
-    {
-        std::pair<std::string, std::string> option = dh->getOptions()[option_index];
+  if (dh && name && value) {
+    std::pair<std::string, std::string> option = dh->getOptions()[option_index];
 
-        strcpy(name, option.first.c_str());
-        strcpy(value, option.second.c_str());
-    }
+    strcpy(name, option.first.c_str());
+    strcpy(value, option.second.c_str());
+  }
 }
 
 } // namespace aria2
