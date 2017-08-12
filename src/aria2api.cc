@@ -649,7 +649,7 @@ extern "C" size_t getGlobalOptions(Session* session, char** name, char** value)
   const KeyVals options = getGlobalOptions(session);
 
   if (name != NULL && value != NULL) {
-    for (size_t i = 0, i < options.size(), ++i) {
+    for (size_t i = 0; i < options.size(); ++i) {
       strcpy(name[i], options[i].first.c_str());
       strcpy(value[i], options[i].second.c_str());
     }
